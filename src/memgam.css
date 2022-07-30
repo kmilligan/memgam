@@ -1,0 +1,41 @@
+.memgam-gamebutton
+{
+	position: relative;
+	width: 40%;
+	/* clever trick that makes the boxes square when smaller than our max */
+	padding-bottom: 40%;
+	max-width: 200px;
+	max-height: 200px;
+	border: 2px solid #999;
+	border-radius: 5px;
+	display: inline-block;
+	margin: 10px;
+}
+
+@media only screen and (min-width: 500px)
+{
+	.memgam-gamebutton
+	{
+		height: 200px;
+		padding-bottom: 0;
+	}
+}
+
+a.memgam-gamebutton:active, .lit
+{
+	filter: brightness(0.6);
+}
+.memgam-gamebutton-text
+{
+	display: block;
+	margin: 0;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 300%;
+	/* so we dont have to deal with events from these */
+	pointer-events: none;
+}
+
+

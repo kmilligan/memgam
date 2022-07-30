@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Memory Game</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+		<link rel='stylesheet' href='../src/memgam.css'/>
+		<style>
+body
+{
+	font-family: sans-serif;
+}
+
+#container
+{
+	max-width: 700px;
+}
+
+#status
+{
+	padding-left: 10px;
+}
+#status li
+{
+	float: left;
+	display: none;
+	font-style: bold;
+	font-size: 150%;
+}
+
+#start-button
+{
+	float: right;
+	font-size: 150%;
+}
+		</style>
+		<script src='../src/memgam.js'></script>
+	</head>
+	<body>
+		<div id='container'>
+			<h2>Memory Game!</h2>
+			<em>When a new game starts, the buttons will light up.
+				<br/>Repeat the pattern by pressing the buttons in the same order.</em>
+			<div id='gameboard'></div>
+			<ul id='status'>
+				<li class='won'>You Win!</li>
+				<li class='lost'>You Lost :(</li>
+			</ul>
+			<button id='start-button'>Start New Game</button>
+		</div>
+		<script>
+			// setup the game instance
+			const game = new memgam(
+			{
+				onWin: function()
+				{
+					document.querySelector('#status .won').style = 'display: inline';
+				},
+				onLose: function()
+				{
+					document.querySelector('#status .lost').style = 'display: inline';
+				}
+			});
+
+			// add button listener to start a new game
+			document.querySelector('#start-button').addEventListener('click', function()
+			{
+				// reset 
+				document.querySelectorAll('#status li').forEach(function(item)
+				{
+					item.style = 'display: none';
+				});
+
+				game.startNewGame();
+			});
+
+			// show *something* intially
+			game.showBoard();
+		</script>
+	</body>
+</html>
