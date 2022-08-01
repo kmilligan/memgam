@@ -19,3 +19,7 @@ Today I'm playing catch-up and using 'const/let', promises/async/await, vanilla 
 4. Start the game
 
   `game.startNewGame();`
+
+## How did we get here?
+
+[The Journey](https://kmilligan.github.io/memgam/journey.html)
