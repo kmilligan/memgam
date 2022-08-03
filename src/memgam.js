@@ -1,6 +1,7 @@
 /**
  * memgam - a simple memory game
  *
+ *@see LICENSE and README.md files for details.
  */
 (function() {
 
@@ -104,6 +105,18 @@ const setupGameBoard = function(that)
 		container.appendChild(button);
 		buttons.push(button);
 	}
+
+	// our release handler needs to be everywhere; as it is easy
+	// to press down within one of our buttons, but release outside of one.
+	// remove the previous handler first, tho.
+	if(that.releaseHandler)
+	{
+		document.removeEventListener('pointerup', that.releaseHandler);
+		that.releaseHandler = null;
+	}
+	that.releaseHandler = event => buttonReleased(that, event);
+	document.addEventListener('pointerup', that.releaseHandler);
+
 	return buttons;
 };
 
@@ -121,10 +134,12 @@ const createButton = function(that, buttonNumber, buttonConfig)
 	buttonText.innerHTML = buttonConfig.display;
 	button.appendChild(buttonText);
 
+	// first lesson: pointer events work better than mouse/touch events.
 	// function(foo) { return bar; } --> foo => bar;
-	button.addEventListener('mousedown', event => buttonPressed(that, event));
-	button.addEventListener('touchstart', event => buttonPressed(that, event));
-	button.addEventListener('mouseup', event => buttonReleased(that, event));
+	button.addEventListener('pointerdown', event => buttonPressed(that, event));
+	// second lesson: you still might not release within the button, 
+	// so have to listen more generically on document instead.
+	//button.addEventListener('pointerup', event => buttonReleased(that, event));
 
 	return button;
 };
@@ -150,9 +165,15 @@ const shuffle = function(array)
 
 const buttonPressed = function(that, event)
 {
-	// might get both touchstart and mousedown
+	//console.log('PRESS', event);
+	// not clear why, but sometimes we get consecutive press events
+	// without a release, which confuses things, so in that case,
+	// assume they've released
 	if(that.activeButton)
-		return false;
+	{
+		console.log('received button press, but already active button; assuming release.');
+		buttonReleased(that, { target: that.activeButton } );
+	}
 
 	if(!that.playersTurn)
 	{
@@ -167,13 +188,15 @@ const buttonPressed = function(that, event)
 
 const buttonReleased = function(that, event)
 {
+	// all we care about is if there's an active button.
 	if(!that.activeButton || !that.activeButton.oscillator)
+	{
+		console.log('no active button');
 		return false;
+	}
+	//console.log('RELEASE', event);
 
 	that.activeButton.oscillator.stop();
-
-	if(that.activeButton != event.target)
-		return false;
 
 	that.activeButton = null;
 
