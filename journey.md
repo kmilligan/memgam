@@ -20,6 +20,8 @@ I originally learned Javascript long before ES2015/ES6. Some specific new things
 - `var` vs `const` and `let` . 
 - Promises vs callbacks
 - new "arrow" shorthand for functions
+- pointer events vs mouse/touch events
+- audio generation
 
 I create a test/index.html file that loads src/memgam.js and src/memgam.css, and do some initial work cuz that's the fun part.
 
@@ -55,13 +57,13 @@ I run the jest install command `npm install --save-dev jest` . It complains abou
 
 Hm. I run `sudo apt install nodejs` and it says I'm up to date with version 10. jest install is asking for version 18. *searches internets...*
 
-Guess I have to not use the package from my distro. 
+Guess I have to not use the package from my distro...try (nodesource)[https://github.com/nodesource/distributions] instead.
 
 - `sudo apt remove nodejs`
 - `curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -`
 - `sudo apt install nodejs`
 
-ok, I run the just install command again now and it doesn't complain. yay!
+ok, I run the jest install command again now and it doesn't complain. yay!
 
 ...but it creates a new `node_modules` directory and adds almost 3500 (!) files to it. Yeesh. Pretty sure I don't want those in the repo...
 
