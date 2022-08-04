@@ -57,7 +57,7 @@ I run the jest install command `npm install --save-dev jest` . It complains abou
 
 Hm. I run `sudo apt install nodejs` and it says I'm up to date with version 10. jest install is asking for version 18. *searches internets...*
 
-Guess I have to not use the package from my distro...try (nodesource)[https://github.com/nodesource/distributions] instead.
+Guess I have to not use the package from my distro...try [nodesource](https://github.com/nodesource/distributions) instead.
 
 - `sudo apt remove nodejs`
 - `curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -`
