@@ -36,9 +36,6 @@ const defaultConfig =
 	betweenLoops: 500
 };
 
-// we only want one of these
-// but we can't create it until the user does something
-let audioContext = null;
 
 // attach to window object for access
 window.memgam = function(options)
@@ -69,18 +66,93 @@ memgam.prototype.startNewGame = function()
 
 
 // **** private methods ****
+
+class Sounder
+{
+	// we only want one of these
+	// but we can't create it until the user does something
+	static audioContext = null;
+
+	static minRampMS = 200; 
+
+	oscillator = null;
+	gainNode = null;
+
+	constructor()
+	{
+		if(!Sounder.audioContext)
+			Sounder.audioContext = new AudioContext();
+	};
+
+	/**
+	* Play a sound at the given frequency;
+	* defaults to using a triangle wave. 
+	* By default, will continue to play until 
+	* stopGracefully() is called.
+	*
+	* Duration is specified in milliseconds.
+	*/
+	play(frequency, duration = 0, type = 'triangle')
+	{
+		if(this.oscillator)
+			throw new Error('Create a new instance to play another sound.');
+
+		// create our oscillator and gain nodes,
+		// and connect them up
+		this.oscillator = Sounder.audioContext.createOscillator();
+		this.oscillator.frequency.setValueAtTime(frequency, Sounder.audioContext.currentTime);
+		this.oscillator.type = type;
+
+		this.gainNode = Sounder.audioContext.createGain();
+		this.oscillator.connect(this.gainNode);
+		this.gainNode.connect(Sounder.audioContext.destination);
+
+		// create the sound!
+		this.oscillator.start();
+
+		if(duration > 0)
+			this.stopGracefully(duration);
+	};
+
+	/**
+	* Stop playing the current sound after
+	* the specified duration in milliseconds, which defaults to 0 (now),
+	* but fade out the sound to avoid audible clicks
+	* caused by cutting mid-wafeform.
+	*/
+	stopGracefully(duration = 0)
+	{
+		// thought about making this an exception,
+		// but that could be annoying
+		if(!this.oscillator)
+		{
+			console.log('no oscillator; call play() first');
+			return;
+		}
+
+		// audio api deals in seconds, not ms
+		// also, we need to set a minimum because we need time
+		// for the ramp to actually occur
+		const durationSec = Math.max(duration, Sounder.minRampMS) / 1000; 
+
+		const endTime = Sounder.audioContext.currentTime + durationSec;
+		// this is important as an initial value
+		this.gainNode.gain.setValueAtTime(
+			this.gainNode.gain.value, Sounder.audioContext.currentTime);
+		//sounder.gainNode.gain.exponentialRampToValueAtTime(0.001, endTime);
+		this.gainNode.gain.linearRampToValueAtTime(0, endTime);
+		// not clear this is needed, but seems right
+		this.oscillator.stop(endTime);
+	};
+}
+
 const resetState = function(that)
 {
 	that.inProgress = false;
 	that.playersTurn = false;
 
-	if(!audioContext)
-		audioContext = new AudioContext();
-
-	that.audioContext = audioContext;
-
-	if(that.activeButton && that.activeButton.oscillator)
-		that.activeButton.oscillator.stop();
+	if(that.activeButton && that.activeButton.sounder)
+		that.activeButton.sounder.stopGracefully();
 	that.activeButton = null;
 };
 
@@ -182,21 +254,22 @@ const buttonPressed = function(that, event)
 	}
 
 	that.activeButton = event.target;
-	that.activeButton.oscillator = playSound(that, that.activeButton.dataset.frequency, 0);
+	that.activeButton.sounder = new Sounder();
+	that.activeButton.sounder.play(that.activeButton.dataset.frequency);
 	return false;
 };
 
 const buttonReleased = function(that, event)
 {
 	// all we care about is if there's an active button.
-	if(!that.activeButton || !that.activeButton.oscillator)
+	if(!that.activeButton || !that.activeButton.sounder)
 	{
 		console.log('no active button');
 		return false;
 	}
 	//console.log('RELEASE', event);
 
-	that.activeButton.oscillator.stop();
+	that.activeButton.sounder.stopGracefully();
 
 	that.activeButton = null;
 
@@ -246,25 +319,12 @@ const modifyTimingsByStep = function(step, timeOn, timeOff)
 
 const activateButton = async function(that, button, timeOn, timeOff)
 {
-	playSound(that, button.dataset.frequency, timeOn);
+	const sounder = new Sounder();
+	sounder.play(button.dataset.frequency, timeOn);
 	button.classList.add('lit');
 	await wait(timeOn);
 	button.classList.remove('lit');
 	await wait(timeOff);
-};
-
-const playSound = function(that, frequency, timeOn)
-{
-	// setup audio
-	let oscillator = that.audioContext.createOscillator();
-	oscillator.connect(that.audioContext.destination);
-	oscillator.frequency.setValueAtTime(frequency, that.audioContext.currentTime);
-	oscillator.type = 'triangle';
-	oscillator.start();
-	if(timeOn > 0)
-		oscillator.stop(that.audioContext.currentTime + (timeOn / 1000));
-
-	return oscillator;
 };
 
 const wait = function(ms)
@@ -343,8 +403,8 @@ const playGame = async function(that, buttons, pattern)
 		await getPlayerInput(that, pattern, i).catch(function(reason)
 		{
 			that.inProgress = false;
-			if(that.activeButton && that.activeButton.oscillator)
-				that.activeButton.oscillator.stop();
+			if(that.activeButton && that.activeButton.sounder)
+				that.activeButton.sounder.stopGracefully();
 			config.onLose(reason);
 			// no implicit error thrown here (like in getPlayerInput), not sure why
 		});
