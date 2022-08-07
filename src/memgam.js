@@ -3,7 +3,8 @@
  *
  *@see LICENSE and README.md files for details.
  */
-(function() {
+
+(function(root) {
 
 'use strict';
 
@@ -36,9 +37,11 @@ const defaultConfig =
 	betweenLoops: 500
 };
 
+// convenience accessor
+const document = root.document;
 
-// attach to window object for access
-window.memgam = function(options)
+// attach to global/window object for access from the outside
+root.memgam = function(options)
 {
 	this.options = { ...defaultConfig, ...options};
 };
@@ -48,7 +51,7 @@ window.memgam = function(options)
 /**
  * Show a game board but don't start a game
  */
-memgam.prototype.showBoard = function()
+root.memgam.prototype.showBoard = function()
 {
 	setupGameBoard(this);
 };
@@ -56,7 +59,7 @@ memgam.prototype.showBoard = function()
 /**
  * Setup a new game board and play!
  */
-memgam.prototype.startNewGame = function()
+root.memgam.prototype.startNewGame = function()
 {
 	resetState(this);
 	const buttons = setupGameBoard(this);
@@ -416,4 +419,5 @@ const playGame = async function(that, buttons, pattern)
 	config.onWin();
 };
 
-})();
+// "global" is for node, "window" is for browser
+})((typeof window !== 'undefined'? window : global ));

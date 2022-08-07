@@ -22,6 +22,7 @@ I originally learned Javascript long before ES2015/ES6. Some specific new things
 - new "arrow" shorthand for functions
 - pointer events vs mouse/touch events
 - audio generation
+- `class` vs prototype/Object.create
 
 I create a test/index.html file that loads src/memgam.js and src/memgam.css, and do some initial work cuz that's the fun part.
 
@@ -69,7 +70,14 @@ ok, I run the jest install command again now and it doesn't complain. yay!
 
 `echo "node_modules" >> .gitignore`
 
-We've also got some new automagically created config files for npm, package.json and package-lock.json. gah.
+We've also got some new automagically created config files for npm, package.json and package-lock.json.
 
-I modify package.json, changing `"test": "echo \"Error: no test specified\" && exit 1"` to `"test": "jest"`, and create a very simple `test/memgam.test.js` file. `npm test` seems to work now. yay!
+I modify package.json, changing `"test": "echo \"Error: no test specified\" && exit 1"` to `"test": "jest"`, and create a very simple `test/memgam.test.js` file. `npm test` seems to work now. yay! jest's `expect` methods are documented [here](https://jestjs.io/docs/expect).
 
+My initial test doesn't actually include my code though, so I `require` it. 
+
+(Keep in mind that I am *not* writing a node module here, so I don't really want to add any `module.exports` stuff to my source code.)
+
+I run it and it explodes because there is no *window* object to attach my stuff to, as *node* doesn't have one of those by default. I modify my code to accept either *window* or *global* (which is available in node), and my test runs. progress!
+
+If I want to actually run the code however, I really need a DOM. In comes [jsdom](https://github.com/jsdom/jsdom) to the rescue. `node install jsdom`, add the require, and now add a second test using jsdom to provide a `window` object. Hm, doesn't work -- my code isn't attached to `window`. My code was already loaded by the first test, and `require` caches what it loads, so  running it again doesn't do anything. *Research research....* ah, nice, `jest` has an `isolateModules` mechanism. Now I can test both ways. woohoo!
