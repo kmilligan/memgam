@@ -1,4 +1,5 @@
 const jsdom = require('jsdom');
+// this is a "destructuring assignment"
 const { JSDOM } = jsdom;
 
 test('instance test', () =>
