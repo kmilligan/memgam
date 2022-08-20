@@ -18,11 +18,12 @@ Don't know much about node, and nothing about babel, so maybe I'll do some resea
 I originally learned Javascript long before ES2015/ES6. Some specific new things I wanted to learn about:
 
 - `var` vs `const` and `let` . 
-- Promises vs callbacks
-- new "arrow" shorthand for functions
-- pointer events vs mouse/touch events
-- audio generation
-- `class` vs prototype/Object.create
+- <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises'>Promises</a> vs callbacks
+- new <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions'>"arrow"</a> shorthand for functions
+- <a href='https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events'>pointer events vs mouse/touch events</a>
+- <a href='https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API'>audio generation</a>
+- <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes'>`class` vs prototype/Object.create</a>
+- <a href='https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment'>"destructuring assignment"</a>
 
 I create a test/index.html file that loads src/memgam.js and src/memgam.css, and do some initial work cuz that's the fun part.
 
@@ -81,3 +82,13 @@ My initial test doesn't actually include my code though, so I `require` it.
 I run it and it explodes because there is no *window* object to attach my stuff to, as *node* doesn't have one of those by default. I modify my code to accept either *window* or *global* (which is available in node), and my test runs. progress!
 
 If I want to actually run the code however, I really need a DOM. In comes [jsdom](https://github.com/jsdom/jsdom) to the rescue. `node install jsdom`, add the require, and now add a second test using jsdom to provide a `window` object. Hm, doesn't work -- my code isn't attached to `window`. My code was already loaded by the first test, and `require` caches what it loads, so  running it again doesn't do anything. *Research research....* ah, nice, `jest` has an `isolateModules` mechanism. Now I can test both ways. woohoo!
+
+## Linting
+
+First I naively try `npm install eslint`, and then run `eslint src/*.js` and get "Error: Cannot find module 'optionator'", so that's fun. Seems like I might be running the system version of eslint rather than a local version.
+
+I visit <a href='https://eslint.org'>ESLint</a> and try the prescribed `npm init @eslint/config` and answer a bunch of questions. Yet another config file added to the repo.
+
+Apparently to actually run it directly, I do `npx eslint src/*.js` ... note that is '''npx'''. I get some reasonable looking outputi; yay! 
+
+But now I want it to run via, say, `npm lint` like when I do `npm test`...so I edit my `package.json` file, and add a "lint" entry in the "scripts" object. No joy; apparently the <a href='https://docs.npmjs.com/cli/v8/using-npm/scripts'>"scripts"</a> object only supports a specific list of commands for direct use...but, I can use `npm run lint` instead and it seems to work.
