@@ -85,7 +85,7 @@ class Sounder
 	{
 		if(!Sounder.audioContext)
 			Sounder.audioContext = new AudioContext();
-	};
+	}
 
 	/**
 	* Play a sound at the given frequency;
@@ -115,7 +115,7 @@ class Sounder
 
 		if(duration > 0)
 			this.stopGracefully(duration);
-	};
+	}
 
 	/**
 	* Stop playing the current sound after
@@ -146,7 +146,7 @@ class Sounder
 		this.gainNode.gain.linearRampToValueAtTime(0, endTime);
 		// not clear this is needed, but seems right
 		this.oscillator.stop(endTime);
-	};
+	}
 }
 
 const resetState = function(that)
