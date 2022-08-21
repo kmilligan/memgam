@@ -2,6 +2,9 @@ const jsdom = require('jsdom');
 // this is a "destructuring assignment"
 const { JSDOM } = jsdom;
 
+/*global test,jest,expect*/
+/*eslint no-undef: "error"*/
+
 test('instance test', () =>
 {
 	jest.isolateModules(() =>

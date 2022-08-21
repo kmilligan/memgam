@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "jest",
-    "lint": "npx eslint src/*.js"
+    "lint": "npx eslint src/*.js && npx eslint test/*.js"
   },
   "repository": {
     "type": "git",
